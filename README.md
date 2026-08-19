@@ -10,8 +10,7 @@ Aplicación web diseñada para monitorear los recursos de un router MikroTik a t
 
 **1. Clonar el repositorio**
 ```bash
-git clone <URL_DE_TU_REPOSITORIO>
-cd <NOMBRE_DE_LA_CARPETA>
+git clone https://github.com/valentinadinardi/DevopsMelo2026.git
 
 **2. Construir la imagen de Docker**
 docker build -t nombre_imagen .
