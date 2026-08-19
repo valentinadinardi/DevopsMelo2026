@@ -12,8 +12,10 @@ system_info = system_resource.get()
 
 for interfaz in interfaces:
     print(interfaz['name'], interfaz['running'])
+    
+cpu = system_info[0]['cpu-load']
 
-print("\n----- 🔍 MONITOREO DEL SISTEMA -----")
+print("\n----- MONITOREO DEL SISTEMA -----")
 for info in system_info:
     print(f"Uso de CPU: {info.get('cpu-load')}%")
     print(f"Disco libre: {info.get('free-hdd-space')} bytes libres")
