@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MikroTik Monitor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b1220;
+      color: #e5edf8;
+    }
+    .container { max-width: 1200px; margin: auto; padding: 28px 18px; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    h1 { margin: 0; font-size: 28px; }
+    .muted { color: #91a4bd; }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      background: #38bdf8;
+      color: #03111d;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .card {
+      background: #111b2e;
+      border: 1px solid #22304a;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.16);
+    }
+    .card .label { font-size: 13px; color: #91a4bd; margin-bottom: 7px; }
+    .card .value { font-size: 24px; font-weight: 800; }
+    .section-title { margin: 26px 0 12px; font-size: 19px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #24324a; }
+    th { color: #91a4bd; font-size: 13px; }
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .up { background: rgba(34,197,94,.15); color: #86efac; }
+    .down { background: rgba(239,68,68,.15); color: #fca5a5; }
+    .links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .link-card {
+      display: block;
+      text-decoration: none;
+      color: #e5edf8;
+      background: #111b2e;
+      border: 1px solid #22304a;
+      border-radius: 14px;
+      padding: 16px;
+      transition: .2s ease;
+    }
+    .link-card:hover { transform: translateY(-2px); border-color: #38bdf8; }
+    .error {
+      display: none;
+      background: rgba(239,68,68,.12);
+      color: #fecaca;
+      border: 1px solid rgba(239,68,68,.35);
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #22304a;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress > div { height: 100%; background: #38bdf8; width: 0; transition: width .3s ease; }
+    @media (max-width: 600px) {
+      header { align-items: flex-start; flex-direction: column; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Sistema de monitoreo MikroTik - GRUPO 4 </h1>
+        <div class="muted">Estado del router en tiempo real</div>
+      </div>
+      <button onclick="loadStatus()">Actualizar</button>
+    </header>
+
+    <div id="error" class="error"></div>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">CPU</div>
+        <div class="value" id="cpu">--%</div>
+        <div class="progress"><div id="cpuBar"></div></div>
+      </div>
+      <div class="card">
+        <div class="label">Memoria libre</div>
+        <div class="value" id="memory">--</div>
+        <div class="muted" id="memoryDetail"></div>
+      </div>
+      <div class="card">
+        <div class="label">Disco libre</div>
+        <div class="value" id="disk">--</div>
+      </div>
+      <div class="card">
+        <div class="label">RouterOS</div>
+        <div class="value" id="version">--</div>
+        <div class="muted" id="board"></div>
+      </div>
+      <div class="card">
+        <div class="label">Uptime</div>
+        <div class="value" id="uptime">--</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Interfaces</h2>
+    <div class="card table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Tipo</th>
+            <th>MTU</th>
+          </tr>
+        </thead>
+        <tbody id="interfacesBody">
+          <tr><td colspan="4" class="muted">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">Accesos rápidos</h2>
+    <section class="links">
+      <a class="link-card" href="https://www.python.org" target="_blank">🐍 Python Oficial</a>
+      <a class="link-card" href="https://docs.python.org/3/" target="_blank">📚 Documentación Python</a>
+      <a class="link-card" href="https://github.com" target="_blank">💻 GitHub</a>
+      <a class="link-card" href="https://stackoverflow.com" target="_blank">🧠 Stack Overflow</a>
+      <a class="link-card" href="http://127.0.0.1:5000" target="_blank">🖥 System Monitor</a>
+      <a class="link-card" href="http://127.0.0.1:5000" target="_blank">🔎 System Check</a>
+    </section>
+  </div>
+
+  <script>
+    function bytesToHuman(bytes) {
+      const n = Number(bytes || 0);
+      if (!n) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(n) / Math.log(1024));
+      return `${(n / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2)} ${units[i]}`;
+    }
+
+    async function loadStatus() {
+      const error = document.getElementById('error');
+      error.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/status', { cache: 'no-store' });
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'No se pudo consultar el router');
+        }
+
+        const s = data.system;
+        document.getElementById('cpu').textContent = `${s.cpu_load}%`;
+        document.getElementById('cpuBar').style.width = `${Math.min(Number(s.cpu_load || 0), 100)}%`;
+        document.getElementById('memory').textContent = bytesToHuman(s.free_memory);
+        document.getElementById('memoryDetail').textContent = `de ${bytesToHuman(s.total_memory)}`;
+        document.getElementById('disk').textContent = bytesToHuman(s.free_hdd_space);
+        document.getElementById('version').textContent = s.version;
+        document.getElementById('board').textContent = `${s.board_name} · ${s.cpu}`;
+        document.getElementById('uptime').textContent = s.uptime;
+
+        const body = document.getElementById('interfacesBody');
+        body.innerHTML = '';
+
+        data.interfaces.forEach(iface => {
+          const row = document.createElement('tr');
+          const stateClass = iface.running ? 'up' : 'down';
+          const stateText = iface.running ? 'RUNNING' : 'DOWN';
+          row.innerHTML = `
+            <td>${iface.name}</td>
+            <td><span class="badge ${stateClass}">${stateText}</span></td>
+            <td>${iface.type ?? '-'}</td>
+            <td>${iface.mtu ?? '-'}</td>
+          `;
+          body.appendChild(row);
+        });
+      } catch (err) {
+        error.textContent = `Error: ${err.message}`;
+        error.style.display = 'block';
+      }
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 5000);
+  </script>
+</body>
+</html>
