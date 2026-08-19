@@ -20,5 +20,5 @@ docker build -t nombre_imagen .
 
 **3. Levantar el contenedor**
 ```bash
-docker run --rm -it --name monitoreo-contenedor -p 3000:3000 monitoreo bash
+docker run --rm -it --name monitoreo-contenedor -p 5000:5000 monitoreo bash
 ```
