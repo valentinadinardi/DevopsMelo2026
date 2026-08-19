@@ -1,7 +1,7 @@
 import routeros_api
-
+import os;
 # Conectar al router
-connection = routeros_api.RouterOsApiPool(os.getenv('IP'), username=os.getenv('USERNAME'), password=os.getenv('PASSWORD'), port=os.getenv('PORT'), plaintext_login=True)
+connection = routeros_api.RouterOsApiPool('192.168.88.1', 'admin', 'admin', '8728', plaintext_login=True)
 api = connection.get_api()
 
 # Obtener las interfaces del router
