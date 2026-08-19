@@ -25,7 +25,7 @@ def opcion4():
 
 def opcion5():
     print("🔍 Has elegido la Opción 5: System monitor")
-    subprocess.Popen(["python", "system_monitor.py"])
+    subprocess.Popen(["py", "system_monitor.py"])
     time.sleep(1)  # esperar un segundo para que el servidor levante
     webbrowser.open("http://127.0.0.1:5000")
 
