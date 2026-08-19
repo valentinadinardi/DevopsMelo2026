@@ -19,13 +19,24 @@ RUN apt-get update && apt-get install -y \
 RUN useradd -ms /bin/bash router \
     && adduser router sudo
 
-# Instalar dependencia Python
-RUN pip3 install --break-system-packages routeros_api
+# Instalar dependencias Python
+RUN pip3 install --break-system-packages routeros_api flask
 
 USER router
 WORKDIR /home/router
 
-# Descargar repositorio
-RUN git clone https://github.com/valentinadinardi/DevopsMelo2026.git
+# Clonar directamente la rama grupo4
+RUN git clone -b grupo4 --single-branch \
+    https://github.com/valentinadinardi/DevopsMelo2026.git
 
 WORKDIR /home/router/DevopsMelo2026
+
+# Verificar rama y archivos durante el build
+RUN echo "=== RAMA ACTUAL ===" \
+    && git branch --show-current \
+    && echo "=== ARCHIVOS ===" \
+    && find . -maxdepth 2 -type f
+
+EXPOSE 5000
+
+CMD ["python3", "app.py"]
