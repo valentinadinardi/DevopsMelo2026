@@ -10,15 +10,23 @@ RUN apt-get update && apt-get install -y \
     jq \
     git \
     curl \
+    python3 \
+    python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/* \
     # Crear un usuario para ejecutar el runner
     && useradd -ms /bin/bash router && adduser router sudo
 
-RUN pip install routeros_api 
-
 USER router
 WORKDIR /home/router
 
-# Descargar el repositorio de la aplicación
-RUN git clone
+RUN python3 -m venv /home/router/venv \
+    && /home/router/venv/bin/pip install routeros_api
+
+ENV PATH="/home/router/venv/bin:$PATH"
+
+WORKDIR /home/router
+
 RUN git clone https://github.com/valentinadinardi/DevopsMelo2026.git
+
+CMD ["python3", "/home/router/DevopsMelo2026/main.py"]
